@@ -1,10 +1,10 @@
 package com.superychen.base;
 
-import com.github.pagehelper.ISelect;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.gson.Gson;
 import com.superychen.base.mybatis.mapper.test.TestMapper;
+import com.superychen.base.redis.repository.RedisRepository;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,6 +25,8 @@ public class BaseApplicationTests {
 
     @Autowired
     private TestMapper testMapper;
+    @Autowired
+    private RedisRepository redisRepository;
 
     @Test
     public void testSelect() {
@@ -50,6 +52,20 @@ public class BaseApplicationTests {
         System.out.println(page.getPageSize());
         System.out.println(page.getTotal());
         System.out.println(new Gson().toJson(page));
+    }
+
+    @Test
+    public void testRedis() {
+        redisRepository.set("a", "simple string");
+        String a = redisRepository.get("a");
+        System.out.println(a);
+        com.superychen.base.mybatis.entity.test.Test test = new com.superychen.base.mybatis.entity.test.Test();
+        test.setId(1);
+        test.setEmail("963999353@qq.com");
+        test.setName("superychen");
+        redisRepository.set("b", test);
+        com.superychen.base.mybatis.entity.test.Test b = redisRepository.getTest("b");
+        System.out.println(new Gson().toJson(b));
     }
 
 }
