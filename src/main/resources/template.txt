@@ -1,0 +1,78 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//java文件
+package com.superychen.database.config.datasource;
+
+import com.alibaba.druid.pool.DruidDataSource;
+
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+
+import lombok.extern.slf4j.Slf4j;
+import tk.mybatis.spring.annotation.MapperScan;
+
+/**
+ * 数据源配置，新增一个数据源时，复制该类，修改标注部分
+ */
+@Slf4j
+@Configuration
+@MapperScan(basePackages = #CLASSPREFIXDataSourceConfig.MASTER_PACKAGE, sqlSessionFactoryRef = #CLASSPREFIXDataSourceConfig.SESSION_FACTORY_NAME)
+public class #CLASSPREFIXDataSourceConfig {
+
+    //新增数据源改这里
+    private static final String SCHEMANAME = "#SCHEMANAME";
+
+    static final String MASTER_PACKAGE = "com.superychen.base.mybatis.mapper." + SCHEMANAME;
+    static final String SESSION_FACTORY_NAME = SCHEMANAME + "SqlSessionFactory";
+    private static final String MAPPER_DIY_LOCATION = "classpath:/mapper_diy/" + Common.firstUpper(SCHEMANAME) + "DiyMapper.xml";
+    private static final String CONFIG_PREFIX = SCHEMANAME + ".datasource";
+    private static final String DATASOURCE_NAME = SCHEMANAME + "DataSource";
+    private static final String TRANSACTION_NAME = SCHEMANAME + "TransactionManager";
+
+    @Bean(name = DATASOURCE_NAME)
+    @ConfigurationProperties(prefix = CONFIG_PREFIX)
+    public DruidDataSource #SCHEMANAMEDruidDataSource() {
+        return new DruidDataSource();
+    }
+
+    @Bean(name = TRANSACTION_NAME)
+    public DataSourceTransactionManager #SCHEMANAMETransactionManager() {
+        return new DataSourceTransactionManager(#SCHEMANAMEDruidDataSource());
+    }
+
+    @Bean(name = SESSION_FACTORY_NAME)
+    public SqlSessionFactory #SCHEMANAMESqlSessionFactory() {
+        final SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
+        sessionFactoryBean.setDataSource(#SCHEMANAMEDruidDataSource());
+        return Common.getSqlSessionFactory(SCHEMANAME, sessionFactoryBean, MAPPER_DIY_LOCATION);
+    }
+
+}
+//java文件
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//配置文件
+# DataSource Config
+#SCHEMANAME.datasource.type=com.alibaba.druid.pool.DruidDataSource
+#SCHEMANAME.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+#SCHEMANAME.datasource.url=#URL
+#SCHEMANAME.datasource.username=#USERNAME
+#SCHEMANAME.datasource.password=#PASSWORD
+#SCHEMANAME.datasource.maxActive:20
+#SCHEMANAME.datasource.initialSize:1
+#SCHEMANAME.datasource.maxWait:60000
+#SCHEMANAME.datasource.minIdle:1
+#SCHEMANAME.datasource.timeBetweenEvictionRunsMillis:60000
+#SCHEMANAME.datasource.minEvictableIdleTimeMillis:300000
+#SCHEMANAME.datasource.validationQuery:select 'x'
+#SCHEMANAME.datasource.testWhileIdle:true
+#SCHEMANAME.datasource.testOnBorrow:false
+#SCHEMANAME.datasource.testOnReturn:false
+#SCHEMANAME.datasource.poolPreparedStatements:false
+#SCHEMANAME.datasource.maxOpenPreparedStatements:20
+//配置文件
+////////////////////////////////////////////////////////////////////////////////////////////////////
