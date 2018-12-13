@@ -2,4 +2,79 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd" ><!--一个mapper对应一个数据库-->
 <mapper namespace="com.superychen.base.mybatis.mapper.test.TestDiyMapper">
 
+    <!--一对多的写法 collection select-->
+    <resultMap id="fullUser" type="com.superychen.base.mybatis.entity.test.UserInfo">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="username" property="username" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="password" property="password" jdbcType="VARCHAR" />
+        <result column="state" property="state" jdbcType="BIT" />
+        <result column="salt" property="salt" jdbcType="VARCHAR" />
+        <collection property="roles" column="id" select="selectRolesByUserId" />
+    </resultMap>
+    <resultMap id="fullRole" type="com.superychen.base.mybatis.entity.test.SysRole">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="role" property="role" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="available" property="available" jdbcType="BIT" />
+        <collection property="permissions" column="id" select="selectPermissionsByRoleId" />
+    </resultMap>
+    <resultMap id="permission" type="com.superychen.base.mybatis.entity.test.SysPermission">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="resourceType" property="resourceType" jdbcType="VARCHAR" />
+        <result column="url" property="url" jdbcType="VARCHAR" />
+        <result column="permission" property="permission" jdbcType="VARCHAR" />
+        <result column="parentId" property="parentId" jdbcType="BIGINT" />
+        <result column="parentIds" property="parentIds" jdbcType="VARCHAR" />
+        <result column="available" property="available" jdbcType="BIT" />
+    </resultMap>
+
+    <sql id="user_info">
+        su.username,
+        su.name,
+        su.password,
+        su.state,
+        su.salt
+    </sql>
+    <sql id="sys_role">
+        sr.id,
+        sr.role,
+        sr.description,
+        sr.available
+    </sql>
+    <sql id="sys_permission">
+        p.id,
+        p.name,
+        p.resourceType,
+        p.url,
+        p.permission,
+        p.parentId,
+        p.parentIds,
+        p.available
+    </sql>
+
+    <select id="selectRolesByUserId" resultMap="fullRole">
+      SELECT sr.*
+      FROM sys_role sr
+      LEFT JOIN sys_user_role sur
+      ON sr.id=sur.rid
+      WHERE sur.uid=#{id};
+    </select>
+
+    <select id="selectPermissionsByRoleId" resultMap="permission">
+        SELECT sp.*
+        FROM sys_permission sp
+        LEFT JOIN sys_role_permission srp
+        ON sp.id=srp.pid
+        WHERE srp.rid=#{id};
+    </select>
+
+    <select id="findByUserName" resultMap="fullUser">
+        SELECT *
+        FROM user_info
+        WHERE username=#{username}
+    </select>
+    <!--一对多的写法 collection ofType-->
+
 </mapper>

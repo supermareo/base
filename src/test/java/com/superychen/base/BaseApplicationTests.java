@@ -3,8 +3,12 @@ package com.superychen.base;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.gson.Gson;
+import com.superychen.base.mybatis.entity.test.SysRole;
+import com.superychen.base.mybatis.mapper.test.SysRoleMapper;
 import com.superychen.base.mybatis.mapper.test.TestMapper;
 import com.superychen.base.redis.repository.RedisRepository;
+import com.superychen.base.service.CaptchaService;
+import com.superychen.base.service.UserInfoService;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,6 +31,20 @@ public class BaseApplicationTests {
     private TestMapper testMapper;
     @Autowired
     private RedisRepository redisRepository;
+    @Autowired
+    private UserInfoService userInfoService;
+    @Autowired
+    private CaptchaService captchaService;
+    @Autowired
+    private SysRoleMapper sysRoleMapper;
+
+    @Test
+    public void testRole(){
+        SysRole query = new SysRole();
+        query.setRole("user");
+        SysRole role = sysRoleMapper.selectOne(query);
+        System.out.println(role);
+    }
 
     @Test
     public void testSelect() {
@@ -66,6 +84,16 @@ public class BaseApplicationTests {
         redisRepository.set("b", test);
         com.superychen.base.mybatis.entity.test.Test b = redisRepository.getTest("b");
         System.out.println(new Gson().toJson(b));
+    }
+
+    @Test
+    public void testMultiSelect() {
+        System.out.println(new Gson().toJson(userInfoService.findByUsername("admin")));
+    }
+
+    @Test
+    public void testCaptcha() {
+        captchaService.getCaptcha();
     }
 
 }
